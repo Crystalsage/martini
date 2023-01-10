@@ -3,6 +3,33 @@ use std::io::Lines;
 
 use std::fs::File;
 
+mod lexer;
+
+use crate::lexer::lex;
+
+type INIContent = Vec<String>;
+
+pub struct INI {
+    // The entire file that has been read.
+    content: INIContent,
+
+    // Sections that have been parsed. At the end of the parsing stage, this 
+    // vector should contain all of the sections.
+    sections: Vec<Section>,
+
+    // All the comments of the INI file.
+    comments: Vec<String>,
+
+    // The context of the parser.
+    ctx: INIContext,
+}
+
+#[derive(Debug)]
+struct INIContext {
+    // The current, ongoing section.
+    current_section: Section,
+}
+
 #[derive(Debug)]
 enum INIValueType {
     INIString(String),
@@ -21,19 +48,10 @@ struct Section {
     properties: Vec<Property>,
 }
 
-#[derive(Debug)]
-struct Context {
-    // All the content of the ini file.
-    content: Vec<Lines<String>>,
 
-    // The current, ongoing section.
-    current_section: Section,
-
-    // Sections that have been parsed. At the end of the parsing stage, this 
-    // vector should contain all of the sections.
-    sections: Vec<Section>,
+fn get_all_comments(ini: INI) -> Vec<String> { 
+    return ini.comments;
 }
-
 
 fn read_file(filename: &str) -> std::io::Result<Lines<BufReader<File>>> {
     let file = File::open(filename)?;
@@ -42,11 +60,43 @@ fn read_file(filename: &str) -> std::io::Result<Lines<BufReader<File>>> {
     return Ok(reader.lines()); 
 }
 
-pub fn parse_ini(filename: &str) {
-    let lines = read_file(filename).unwrap();
+impl Section {
+    fn new() -> Self {
+        Section {
+            name: String::new(),
+            properties: Vec::new(),
+        }
+    }
+}
 
-    for line in lines {
-        println!("{:?}", line.unwrap());
+impl INI {
+    fn new(content: INIContent) -> Self {
+        return INI {
+            content: content,
+            sections: Vec::new(),
+            comments: Vec::new(),
+            ctx: INIContext::new()
+        };
+    }
+}
+
+impl INIContext {
+    fn new() -> Self {
+        INIContext {
+            current_section: Section::new(),
+        }
+    }
+}
+
+impl INI {
+    pub fn parse_ini(filename: &str) -> Self {
+        let lines: Vec<String> = read_file(filename)
+            .unwrap()
+            .map(|line| line.unwrap())
+            .collect();
+
+        dbg!(lex(&lines));
+        return INI::new(lines);
     }
 }
 

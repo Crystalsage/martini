@@ -9,6 +9,6 @@ fn main() {
         println!("Please enter the filename as the argument.");
         return;
     } else {
-        martini::parse_ini(&args[1]);
+        martini::INI::parse_ini(&args[1]);
     }
 }

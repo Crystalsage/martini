@@ -18,7 +18,7 @@ Some of these are implicitly guaranteed.
 
 ### Basic features
 - Sections (`[section]`)
-- Keys/Properteis (`key=value`)
+- Keys/Properties (`key=value`)
 - Case sensitivity
 - Comments (`; is a comment`)
 - Irrelevant ordering of sections 
