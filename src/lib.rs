@@ -4,12 +4,22 @@ use std::io::Lines;
 use std::fs::File;
 
 mod lexer;
+mod parser;
 
 use crate::lexer::lex;
 use crate::lexer::Token;
+use parser::parse;
 
 type INIContent = Vec<String>;
 
+/// The INI struct is the primary struct that's used as an interface into the 
+/// INI File. 
+/// It has four primary fields:
+///   - Content: All the content of the INI File.
+///   - Sections: All the sections and the properties contained within.
+///   - Comments: All the comments of the File.
+///   - ctx: Context of the parser. 
+#[derive(Debug)]
 pub struct INI {
     // The entire file that has been read.
     content: INIContent,
@@ -20,15 +30,6 @@ pub struct INI {
 
     // All the comments of the INI file.
     comments: Vec<String>,
-
-    // The context of the parser.
-    ctx: INIContext,
-}
-
-#[derive(Debug)]
-struct INIContext {
-    // The current, ongoing section.
-    current_section: Section,
 }
 
 #[derive(Debug)]
@@ -61,9 +62,9 @@ fn read_file(filename: &str) -> std::io::Result<Lines<BufReader<File>>> {
 }
 
 impl Section {
-    fn new() -> Self {
+    fn new(name: String) -> Self {
         Section {
-            name: String::new(),
+            name,
             properties: Vec::new(),
         }
     }
@@ -75,16 +76,7 @@ impl INI {
             content: content,
             sections: Vec::new(),
             comments: Vec::new(),
-            ctx: INIContext::new()
         };
-    }
-}
-
-impl INIContext {
-    fn new() -> Self {
-        INIContext {
-            current_section: Section::new(),
-        }
     }
 }
 
@@ -96,12 +88,17 @@ impl INI {
             .collect();
 
         let tokens: Vec<Token> = lex(&lines);
-        dbg!(tokens);
-        return INI::new(lines);
+
+        let mut ini = INI::new(lines);
+        parse(&mut ini, tokens);
+
+        dbg!(&ini);
+
+        return ini;
     }
 }
 
-
+// TODO: Write more tests
 #[cfg(test)]
 mod tests {
     use crate::read_file;
