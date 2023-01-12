@@ -6,6 +6,7 @@ use std::fs::File;
 mod lexer;
 
 use crate::lexer::lex;
+use crate::lexer::Token;
 
 type INIContent = Vec<String>;
 
@@ -47,7 +48,6 @@ struct Section {
     name: String,
     properties: Vec<Property>,
 }
-
 
 fn get_all_comments(ini: INI) -> Vec<String> { 
     return ini.comments;
@@ -95,7 +95,8 @@ impl INI {
             .map(|line| line.unwrap())
             .collect();
 
-        dbg!(lex(&lines));
+        let tokens: Vec<Token> = lex(&lines);
+        dbg!(tokens);
         return INI::new(lines);
     }
 }

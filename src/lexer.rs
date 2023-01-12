@@ -1,5 +1,4 @@
 // The lexer parses the entire document into a stream of tokens. 
-// The tokens are defined in `tokens.rs`.
 use crate::INIContent;
 
 #[derive(Debug)]
@@ -16,18 +15,15 @@ pub enum Token {
     // The token that maps a key to a value. Default is `=`.
     MapsTo,
     
-    // A property which has a key and a value.
+    // A name 
     Name(String),
-
-    Property(String, String),
 }
-
 
 pub fn lex(lines: &INIContent) -> Vec<Token> {
     let mut tokens: Vec<Token> = Vec::new();
 
     for line in lines {
-        // Newline
+        // It's a newline.
         if line.is_empty() {
             continue;
         }
@@ -48,8 +44,11 @@ pub fn lex(lines: &INIContent) -> Vec<Token> {
                     match chr {
                         // Ignore quotes
                         '"' => continue,
+
                         // End section
                         ']' => break,
+
+                        // Letter in the name
                         _ => name.push(chr.to_owned()),
                     }
                 }
