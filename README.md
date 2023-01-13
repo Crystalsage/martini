@@ -17,19 +17,20 @@ We'd like to achieve parsing for following features and properties.
 Some of these are implicitly guaranteed.
 
 ### Basic features
-- Sections (`[section]`)
-- Keys/Properties (`key=value`)
-- Case sensitivity
-- Comments (`; is a comment`)
-- Irrelevant ordering of sections 
+- [x] Sections (`[section]`)
+- [x] Keys/Properties (`key=value`)
+- [x] Case sensitivity
+- [x] Comments (`; is a comment`)
+- [x] Irrelevant ordering of sections 
 
 ### Varying features
-- Global properties
-- Different delimiters: `<space>` and `:` 
-- Hierarchy: Nesting the section (`[section.subsection]` and `[.subsection]` where nesting under `section` is inferred)
-- Variants of comments: `#`, comments after properties may begin with multiple markers.
-- Duplicate properties with multiple parsing strategies: 
-    + Ignore: Ignore the latest conflicting duplicate.
-    + Overwrite: Overwrite the original property with the new one.
-    + Allow multiple: Allow multiple values to co-exist.
-- Escape characters (maybe)
+- [ ] Blank properties (There's no value. e.g. `key=`)
+- [ ] Global properties
+- [ ] Different delimiters: `<space>` and `:` 
+- [ ] Hierarchy: Nesting the section (`[section.subsection]` and `[.subsection]` where nesting under `section` is inferred)
+- [ ] Variants of comments: `#`, comments after properties may begin with multiple markers.
+- [ ] Duplicate properties with multiple parsing strategies: 
+    + [ ] Ignore: Ignore the latest conflicting duplicate.
+    + [ ] Overwrite: Overwrite the original property with the new one.
+    + [ ] Allow multiple: Allow multiple values to co-exist.
+- [ ] Escape characters (maybe)
