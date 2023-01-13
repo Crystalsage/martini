@@ -36,13 +36,28 @@ pub struct INI {
 enum INIValueType {
     INIString(String),
     INIInteger(i64),
+    INIFloat(f64),
 }
 
 #[derive(Debug)]
 struct Property {
     key: String,
-    value: INIValueType,
+    value: Option<INIValueType>,
 }
+
+impl Property {
+    fn new_with_key(key: String) -> Self {
+        Property { 
+            key,
+            value: None,
+        }
+    }
+
+    fn set_value(self: &mut Self, value: INIValueType) {
+        self.value = Some(value);
+    }
+}
+
 
 #[derive(Debug)]
 struct Section {
@@ -62,11 +77,17 @@ fn read_file(filename: &str) -> std::io::Result<Lines<BufReader<File>>> {
 }
 
 impl Section {
-    fn new(name: String) -> Self {
-        Section {
+    /// Return a new named section.
+    fn create_section(name: String) -> Self {
+        Section { 
             name,
             properties: Vec::new(),
         }
+    }
+
+    /// Insert a property into a section.
+    fn insert_property(self: &mut Self, property: Property) {
+        self.properties.push(property);
     }
 }
 
@@ -91,8 +112,6 @@ impl INI {
 
         let mut ini = INI::new(lines);
         parse(&mut ini, tokens);
-
-        dbg!(&ini);
 
         return ini;
     }

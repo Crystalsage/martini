@@ -1,15 +1,45 @@
-use crate::Section;
-use crate::INI;
-use crate::Token;
+use std::string::ParseError;
+
+use crate::{INI, INIValueType, Property, Section, Token};
+
+struct INIContext {
+    current_section: Option<Section>,
+    current_property: Option<Property>,
+}
+
+impl INIContext {
+    fn new() -> Self {
+        INIContext { 
+            current_section: None,
+            current_property: None,
+        }
+    }
+}
+
+/// Converts a Rust data type to a INIValueType. 
+/// i64    ==> INIValueType::INIInteger(i64),
+/// f64    ==> INIValueType::INIFloat(f64),
+/// String ==> INIValueType::String(String),
+fn to_ini_type(value: &String) -> INIValueType {
+    if let Ok(res) = value.parse::<i64>() {
+        return INIValueType::INIInteger(res);
+    } else if let Ok(res) = value.parse::<f64>() {
+        return INIValueType::INIFloat(res);
+    } else {
+        return INIValueType::INIString(value.to_owned());
+    }
+}
 
 pub fn parse(ini: &mut INI, tokens: Vec<Token>) {
     let mut token_iterator = tokens.iter();
+    let mut ctx: INIContext = INIContext::new();
 
     loop {
         let token: Option<&Token> = token_iterator.next();
 
-        // If we've reached the end of the iterator
+        // If we've reached the end of the iterator, push the last section and return.
         if token.is_none() {
+            ini.sections.push(ctx.current_section.unwrap());
             return;
         }
 
@@ -18,23 +48,51 @@ pub fn parse(ini: &mut INI, tokens: Vec<Token>) {
                 ini.comments.push(content.to_string());
             },
             Token::SectionOpen => {
-                let section_name: Option<&Token> = token_iterator.next();
-
-                if section_name.is_none() {
-                    panic!("Malformed INI! No section name after opening the section.");
-                }
-
-                if let Token::Name(section) = section_name.unwrap() {
-                    ini.sections.push(Section::new(section.to_string()));
+                if ctx.current_section.is_some() {
+                    ini.sections.push(ctx.current_section.unwrap());
+                    ctx.current_section = None;
                 } else {
-                    panic!("Malformed INI! Token after section opening is not.");
+                    // In case of the first section, `ctx.current_section` would be None.
+                    continue;
+                }
+            },
+            Token::SectionClose => continue,
+
+            Token::MapsTo =>  continue,
+
+            Token::Name(name) => {
+                // If `ctx.current_section` is None, then there's probably a section name to be 
+                // parsed. This is because we set `ctx.current_section` to `None` in the 
+                // `SectionOpen` token handler. This should also handle the case of the first
+                // section.
+                if ctx.current_section.is_none() {
+                    ctx.current_section = Some(Section::create_section(name.to_owned()));
+                    continue;
+                }  
+
+                // Otherwise, if a section exists contextually, then the name probably belongs to a
+                // property.
+                if ctx.current_property.is_none() {
+                    ctx.current_property = Some(Property::new_with_key(name.to_owned()));
+                } else {
+                    // If there is a property in the current context, then we are past a `MapsTo`
+                    // token and the current name is probably a property value.
+                    
+                    let ini_value: INIValueType = to_ini_type(name);
+                    ctx.current_property
+                        .as_mut()
+                        .unwrap()
+                        .set_value(ini_value);
+
+                    // Once the property is parsed completely, we can add it into `current_section`
+                    // and be done with it.
+                    ctx.current_section
+                        .as_mut()
+                        .unwrap()
+                        .insert_property(ctx.current_property.unwrap());
+                    ctx.current_property = None;
                 }
             }
-
-            _ => {}
         }
-
     }
-
-    // Parse the sections
 }
