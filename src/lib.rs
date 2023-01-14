@@ -69,7 +69,7 @@ fn get_all_comments(ini: INI) -> Vec<String> {
     return ini.comments;
 }
 
-fn read_file(filename: &str) -> std::io::Result<Lines<BufReader<File>>> {
+pub fn read_file(filename: &str) -> std::io::Result<Lines<BufReader<File>>> {
     let file = File::open(filename)?;
     let reader = BufReader::new(file);
 
@@ -113,18 +113,8 @@ impl INI {
         let mut ini = INI::new(lines);
         parse(&mut ini, tokens);
 
+        dbg!(&ini);
+
         return ini;
-    }
-}
-
-// TODO: Write more tests
-#[cfg(test)]
-mod tests {
-    use crate::read_file;
-
-    #[test]
-    fn read_file_test() {
-        let filename: &str = "test_file.ini";
-        assert_eq!(read_file(filename), Err);
     }
 }
