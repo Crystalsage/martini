@@ -70,7 +70,7 @@ pub fn lex(lines: &INIContent) -> Vec<Token> {
             }
 
             // Probably a property.
-            Some(_) => {
+            Some('a'..='z') | Some('A'..='Z') | Some('0'..='9') => {
                 let (key, value) = line.split_once('=').unwrap();
                 tokens.push(Token::Name(key.trim().to_string()));
                 tokens.push(Token::MapsTo);
@@ -78,7 +78,8 @@ pub fn lex(lines: &INIContent) -> Vec<Token> {
             }
 
             _ => {
-                panic!("Found invalid character!");
+                // TODO: To panic or not panic?
+                continue;
             }
         }
     }
@@ -124,7 +125,7 @@ mod tests {
     }
 
     #[test]
-    fn test_name_token_for_sections() {
+    fn test_name_token_for_section() {
         let section_string = vec!["[test_section]".to_string()];
         let lexed_token = lex(&section_string);
 
@@ -141,9 +142,19 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
+    fn test_that_newline_returns_no_token() {
+        let property_string = vec!["\n".to_string()];
+        let lexed_token = lex(&property_string);
+
+        assert!(lexed_token.is_empty());
+    }
+
+
+    #[test]
     fn test_invalid_token() {
         let property_string = vec!["`[section]`".to_string()];
         let lexed_token = lex(&property_string);
+
+        assert!(lexed_token.is_empty());
     }
 }
