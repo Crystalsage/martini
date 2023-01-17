@@ -1,7 +1,6 @@
-use std::string::ParseError;
+use crate::{INI, Property, Token};
 
-use crate::{INI, INIValueType, Property, Section, Token};
-
+/// Manages the context of the INI Parser. This is used while parsing the names to 
 struct INIContext {
     current_section: Option<Section>,
     current_property: Option<Property>,
@@ -16,17 +15,51 @@ impl INIContext {
     }
 }
 
-/// Converts a Rust data type to a INIValueType. 
-/// i64    ==> INIValueType::INIInteger(i64),
-/// f64    ==> INIValueType::INIFloat(f64),
-/// String ==> INIValueType::String(String),
-fn to_ini_type(value: &String) -> INIValueType {
-    if let Ok(res) = value.parse::<i64>() {
-        return INIValueType::INIInteger(res);
-    } else if let Ok(res) = value.parse::<f64>() {
-        return INIValueType::INIFloat(res);
-    } else {
-        return INIValueType::INIString(value.to_owned());
+#[derive(Debug)]
+pub struct Section {
+    name: String,
+    properties: Vec<Property>,
+}
+
+impl Section {
+    /// Return a new named section.
+    fn create_section(name: String) -> Self {
+        Section { 
+            name,
+            properties: Vec::new(),
+        }
+    }
+
+    /// Insert a property into a section.
+    fn insert_property(self: &mut Self, property: Property) {
+        self.properties.push(property);
+    }
+}
+
+
+
+
+/// Wrapper types 
+#[derive(Debug)]
+pub enum INIValueType {
+    INIString(String),
+    INIInteger(i64),
+    INIFloat(f64),
+}
+
+impl INIValueType {
+    /// Converts a Rust data type to a INIValueType. 
+    /// i64    ==> INIValueType::INIInteger(i64),
+    /// f64    ==> INIValueType::INIFloat(f64),
+    /// String ==> INIValueType::String(String),
+    fn to_ini_type(value: &String) -> Self {
+        if let Ok(res) = value.parse::<i64>() {
+            return INIValueType::INIInteger(res);
+        } else if let Ok(res) = value.parse::<f64>() {
+            return INIValueType::INIFloat(res);
+        } else {
+            return INIValueType::INIString(value.to_owned());
+        }
     }
 }
 
@@ -78,7 +111,7 @@ pub fn parse(ini: &mut INI, tokens: Vec<Token>) {
                     // If there is a property in the current context, then we are past a `MapsTo`
                     // token and the current name is probably a property value.
                     
-                    let ini_value: INIValueType = to_ini_type(name);
+                    let ini_value: INIValueType = INIValueType::to_ini_type(name);
                     ctx.current_property
                         .as_mut()
                         .unwrap()

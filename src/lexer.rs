@@ -35,7 +35,6 @@ pub fn lex(lines: &INIContent) -> Vec<Token> {
                 tokens.push(Token::Comment(line[1..].trim().to_string()));
             },
 
-            // TODO: Maybe not do this in one go?
             // Lex a section in one go.
             Some('[') => {
                 tokens.push(Token::SectionOpen);

@@ -6,8 +6,8 @@ use std::fs::File;
 mod lexer;
 mod parser;
 
-use crate::lexer::lex;
-use crate::lexer::Token;
+use crate::lexer::{lex, Token};
+use crate::parser::{INIValueType, Section};
 use parser::parse;
 
 type INIContent = Vec<String>;
@@ -32,12 +32,6 @@ pub struct INI {
     comments: Vec<String>,
 }
 
-#[derive(Debug)]
-enum INIValueType {
-    INIString(String),
-    INIInteger(i64),
-    INIFloat(f64),
-}
 
 #[derive(Debug)]
 struct Property {
@@ -58,13 +52,6 @@ impl Property {
     }
 }
 
-
-#[derive(Debug)]
-struct Section {
-    name: String,
-    properties: Vec<Property>,
-}
-
 fn get_all_comments(ini: INI) -> Vec<String> { 
     return ini.comments;
 }
@@ -76,31 +63,6 @@ pub fn read_file(filename: &str) -> std::io::Result<Lines<BufReader<File>>> {
     return Ok(reader.lines()); 
 }
 
-impl Section {
-    /// Return a new named section.
-    fn create_section(name: String) -> Self {
-        Section { 
-            name,
-            properties: Vec::new(),
-        }
-    }
-
-    /// Insert a property into a section.
-    fn insert_property(self: &mut Self, property: Property) {
-        self.properties.push(property);
-    }
-}
-
-impl INI {
-    fn new(content: INIContent) -> Self {
-        return INI {
-            content: content,
-            sections: Vec::new(),
-            comments: Vec::new(),
-        };
-    }
-}
-
 impl INI {
     pub fn parse_ini(filename: &str) -> Self {
         let lines: Vec<String> = read_file(filename)
@@ -110,10 +72,8 @@ impl INI {
 
         let tokens: Vec<Token> = lex(&lines);
 
-        let mut ini = INI::new(lines);
+        let mut ini = INI { content: lines, sections: Vec::new(), comments: Vec::new() };
         parse(&mut ini, tokens);
-
-        dbg!(&ini);
 
         return ini;
     }

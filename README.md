@@ -24,7 +24,7 @@ Some of these are implicitly guaranteed.
 - [x] Irrelevant ordering of sections 
 
 ### Varying features
-- [ ] Blank properties (There's no value. e.g. `key=`)
+- [x] Blank properties (There's no value. e.g. `key=`)
 - [ ] Global properties
 - [ ] Different delimiters: `<space>` and `:` 
 - [ ] Hierarchy: Nesting the section (`[section.subsection]` and `[.subsection]` where nesting under `section` is inferred)
