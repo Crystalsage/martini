@@ -74,7 +74,7 @@ impl INI {
 
         let mut ini = INI { content: lines, sections: Vec::new(), comments: Vec::new() };
         parse(&mut ini, tokens);
-        // dbg!(&ini);
+        dbg!(&ini);
 
         return ini;
     }

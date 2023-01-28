@@ -25,12 +25,17 @@ Some of these are implicitly guaranteed.
 
 ### Varying features
 - [x] Blank properties (There's no value. e.g. `key=`)
-- [ ] Global properties
-- [ ] Different delimiters: `<space>` and `:` 
-- [ ] Hierarchy: Nesting the section (`[section.subsection]` and `[.subsection]` where nesting under `section` is inferred)
-- [ ] Variants of comments: `#`, comments after properties may begin with multiple markers.
+- [x] Global properties
+- [ ] Different delimiters for properties: 
+    + [ ] `<space>` 
+    + [ ] `:` 
+- [ ] Hierarchy: Nesting the section 
+    + [ ] `[section.subsection]` 
+    + [ ] `[.subsection]` where nesting under `section` is inferred
+- [ ] Variants of comments: 
+    + [ ] `#`, 
+    + [ ] Comments after properties may begin with multiple markers.
 - [ ] Duplicate properties with multiple parsing strategies: 
     + [ ] Ignore: Ignore the latest conflicting duplicate.
     + [ ] Overwrite: Overwrite the original property with the new one.
     + [ ] Allow multiple: Allow multiple values to co-exist.
-- [ ] Escape characters (maybe)

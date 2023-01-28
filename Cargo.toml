@@ -8,9 +8,22 @@ edition = "2021"
 [dependencies]
 
 [features]
-default = ["globalprops"]
+default = ["blankprops"]
+
+# Enables blank properties.
+#
+# With this feature, the parser can also parse 'blank' properties, i.e. properties which have no 
+# values. These are dropped otherwise.
+# e.g.
+#		```ini
+#			foo = bar
+#			eggs = 
+#			basket = cream
+#   ```
+blankprops = []
 
 # Enables global properties.
+#
 # This means that the parser can parse properties that come before the very first section. 
 # e.g.
 #    ```ini

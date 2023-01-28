@@ -9,7 +9,12 @@ struct INIContext {
 impl INIContext {
     fn new() -> Self {
         INIContext { 
-            current_section: Some(Section::create_section("martini_global".to_string())),
+            current_section: 
+                if cfg!(feature="globalprops") {
+                    Some(Section::create_section("martini_global".to_string()))
+                } else {
+                    None
+                },
             current_property: None,
         }
     }
@@ -101,9 +106,13 @@ pub fn parse(ini: &mut INI, tokens: Vec<Token>) {
                 // `SectionOpen` token handler. This should also handle the case of the first
                 // section.
                 if ctx.current_section.is_none() {
+                    if ctx.current_property.is_some() && !cfg!(feature="globalprops"){
+                        panic!("Global properties not allowed. Please enable crate feature `globalprops`.");
+                    }
+
                     ctx.current_section = Some(Section::create_section(name.to_owned()));
                     continue;
-                }  
+                } 
 
                 // Otherwise, if a section exists contextually, then the name probably belongs to a
                 // property.
@@ -112,6 +121,10 @@ pub fn parse(ini: &mut INI, tokens: Vec<Token>) {
                 } else {
                     // If there is a property in the current context, then we are past a `MapsTo`
                     // token and the current name is probably a property value.
+
+                    if name.is_empty() && !cfg!(feature="blankprops") {
+                        panic!("Blank properties not allowed. Please enable crate feature `blankprops`");
+                    }
                     
                     let ini_value: INIValueType = INIValueType::to_ini_type(name);
                     ctx.current_property
