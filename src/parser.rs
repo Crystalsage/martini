@@ -9,7 +9,7 @@ struct INIContext {
 impl INIContext {
     fn new() -> Self {
         INIContext { 
-            current_section: None,
+            current_section: Some(Section::create_section("martini_global".to_string())),
             current_property: None,
         }
     }
@@ -78,7 +78,9 @@ pub fn parse(ini: &mut INI, tokens: Vec<Token>) {
 
         match token.unwrap() {
             Token::Comment(content) => {
-                ini.comments.push(content.to_string());
+                if !content.is_empty() {
+                    ini.comments.push(content.to_string());
+                }
             },
             Token::SectionOpen => {
                 if ctx.current_section.is_some() {

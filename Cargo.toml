@@ -6,3 +6,21 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+
+[features]
+default = ["globalprops"]
+
+# Enables global properties.
+# This means that the parser can parse properties that come before the very first section. 
+# e.g.
+#    ```ini
+#      foo = bar
+#
+#      [firstSection]
+#      eggs = basket
+#    ```
+# Normally, the parser wouldn't be able to parse 'foo', and it would be dropped altogether. With 
+# the `globalprops` feature, we can parse these as well. The properties that come before the very
+# first section are parsed into a special section called `martini_global`. We can then access these
+# using `ini.sections[0]` or some similar access method.
+globalprops = []
