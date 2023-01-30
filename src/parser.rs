@@ -10,10 +10,9 @@ impl INIContext {
     fn new() -> Self {
         INIContext { 
             current_section: 
-                if cfg!(feature="globalprops") {
-                    Some(Section::create_section("martini_global".to_string()))
-                } else {
-                    None
+                match cfg!(feature="globalprops") {
+                    true => Some(Section::create_section("martini_global".to_string())),
+                    false => None,
                 },
             current_property: None,
         }

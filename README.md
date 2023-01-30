@@ -26,9 +26,9 @@ Some of these are implicitly guaranteed.
 ### Varying features
 - [x] Blank properties (There's no value. e.g. `key=`)
 - [x] Global properties
-- [ ] Different delimiters for properties: 
-    + [ ] `<space>` 
-    + [ ] `:` 
+- [x] Different delimiters for properties: 
+    + [x] `<space>` 
+    + [x] `:` 
 - [ ] Hierarchy: Nesting the section 
     + [ ] `[section.subsection]` 
     + [ ] `[.subsection]` where nesting under `section` is inferred

@@ -63,14 +63,36 @@ pub fn lex(lines: &INIContent) -> Vec<Token> {
             Some(']') => {
                 tokens.push(Token::SectionClose);
             }
+
             // Handled in Name(_) anyway. Just for the tests.
+            #[cfg(not(any(feature="spaceprops", feature="colonprops")))]
             Some('=') => {
+                tokens.push(Token::MapsTo);
+            }
+
+            #[cfg(feature="spaceprops")]
+            Some(' ') => {
+                tokens.push(Token::MapsTo);
+            }
+
+            #[cfg(feature="colonprops")]
+            Some(':') => {
                 tokens.push(Token::MapsTo);
             }
 
             // Probably a property.
             Some('a'..='z') | Some('A'..='Z') | Some('0'..='9') => {
-                let (key, value) = line.split_once('=').unwrap();
+                let (key, value) = line.split_once(
+                    match () {
+                        #[cfg(feature="colonprops")]
+                        () => ":",
+                        #[cfg(feature="spaceprops")]
+                        () => " ",
+                        // Otherwise just use the default mapping character ('=')
+                        // #[cfg(not(any(feature="spaceprops", feature="colonprops")))]
+                        () => "=",
+                    }
+                ).unwrap();
                 tokens.push(Token::Name(key.trim().to_string()));
                 tokens.push(Token::MapsTo);
                 tokens.push(Token::Name(value.trim().replace('"', "").to_string()));
