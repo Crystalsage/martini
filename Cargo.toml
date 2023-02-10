@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 
 [features]
-default = []
+default = ["hash_for_comments"]
 
 # Enables blank properties.
 #
@@ -53,3 +53,8 @@ colonprops = []
 spaceprops = []
 # ===== DELIMITERS FOR PROPERTIES ===== 
 
+# ===== COMMENT TOKENS =====
+# Allows comments to start with different character(s) than the default (';').
+#
+hash_for_comments = []
+# ===== COMMENT TOKENS =====

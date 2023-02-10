@@ -31,6 +31,10 @@ pub fn lex(lines: &INIContent) -> Vec<Token> {
         let chars: Vec<char> = line.chars().collect();
 
         match chars.get(0) {
+            #[cfg(feature="hash_for_comments")]
+            Some('#') => {
+                tokens.push(Token::Comment(line[1..].trim().to_string()));
+            }
             Some(';') => {
                 tokens.push(Token::Comment(line[1..].trim().to_string()));
             },

@@ -29,13 +29,12 @@ Some of these are implicitly guaranteed.
 - [x] Different delimiters for properties: 
     + [x] `<space>` 
     + [x] `:` 
-- [ ] Hierarchy: Nesting the section 
+- [ ] Hierarchy: Nesting the section
     + [ ] `[section.subsection]` 
     + [ ] `[.subsection]` where nesting under `section` is inferred
-- [ ] Variants of comments: 
-    + [ ] `#`, 
-    + [ ] Comments after properties may begin with multiple markers.
-- [ ] Duplicate properties with multiple parsing strategies: 
+- [x] Variants of comments:
+    + [x] `#`,
+- [ ] Duplicate properties with multiple parsing strategies:
     + [ ] Ignore: Ignore the latest conflicting duplicate.
     + [ ] Overwrite: Overwrite the original property with the new one.
     + [ ] Allow multiple: Allow multiple values to co-exist.
