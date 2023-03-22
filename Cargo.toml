@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 
 [features]
-default = ["hash_for_comments"]
+default = ["subsections"]
 
 # Enables blank properties.
 #
@@ -58,3 +58,7 @@ spaceprops = []
 #
 hash_for_comments = []
 # ===== COMMENT TOKENS =====
+
+# ===== SUBSECTIONS =====
+subsections = []
+# ===== SUBSECTIONS =====

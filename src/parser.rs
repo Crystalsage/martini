@@ -22,6 +22,7 @@ impl INIContext {
 #[derive(Debug)]
 pub struct Section {
     name: String,
+    children: Vec<Section>,
     properties: Vec<Property>,
 }
 
@@ -30,6 +31,7 @@ impl Section {
     fn create_section(name: String) -> Self {
         Section { 
             name,
+            children: Vec::new(),
             properties: Vec::new(),
         }
     }
@@ -90,6 +92,13 @@ pub fn parse(ini: &mut INI, tokens: Vec<Token>) {
             Token::Section(name) => {
                 // Add the previous section that was being parsed into global sections.
                 if ctx.current_section.is_some() {
+                    if name.contains(".") && cfg!(feature="subsections"){
+                        ctx.current_section.as_mut().unwrap().children.push(Section::create_section(name.to_owned()));
+                        ini.sections.push(ctx.current_section.unwrap());
+                        ctx.current_section = Some(Section::create_section(name.to_owned()));
+                        continue;
+                    }
+
                     ini.sections.push(ctx.current_section.unwrap());
                 }
                 ctx.current_section = Some(Section::create_section(name.to_owned()));
