@@ -71,7 +71,6 @@ impl INI {
             .collect();
 
         let tokens: Vec<Token> = lex(&lines);
-        dbg!(&tokens);
 
         let mut ini = INI { content: lines, sections: Vec::new(), comments: Vec::new() };
         parse(&mut ini, tokens);

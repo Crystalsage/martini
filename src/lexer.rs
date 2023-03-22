@@ -6,11 +6,7 @@ pub enum Token {
     // The token that implies a comment. Default is ';'.
     Comment(String),
 
-    // The token that opens a section. Standard is `[`.
-    SectionOpen,
-
-    // The token that closes a section. Standard is `]`.
-    SectionClose,
+    Section(String),
 
     // The token that maps a key to a value. Default is `=`.
     MapsTo,
@@ -41,8 +37,6 @@ pub fn lex(lines: &INIContent) -> Vec<Token> {
 
             // Lex a section in one go.
             Some('[') => {
-                tokens.push(Token::SectionOpen);
-
                 let mut name: Vec<char> = Vec::new();
                 for chr in chars[1..].iter() {
                     match chr {
@@ -58,15 +52,8 @@ pub fn lex(lines: &INIContent) -> Vec<Token> {
                 }
 
                 let name: String = name.into_iter().collect::<String>();
-                tokens.push(Token::Name(name.trim().to_string()));
-
-                tokens.push(Token::SectionClose);
+                tokens.push(Token::Section(name.trim().to_string()));
             },
-
-            // These are handled in `SectionOpen` anyway. Here just for the tests.
-            Some(']') => {
-                tokens.push(Token::SectionClose);
-            }
 
             // Handled in Name(_) anyway. Just for the tests.
             #[cfg(not(any(feature="spaceprops", feature="colonprops")))]
@@ -126,22 +113,6 @@ mod tests {
     }
 
     #[test]
-    fn test_section_open_token() {
-        let section_open_character = vec!["[".to_string()];
-        let lexed_token = lex(&section_open_character);
-
-        assert_eq!(lexed_token.get(0), Some(&Token::SectionOpen));
-    }
-
-    #[test]
-    fn test_section_close_token() {
-        let section_close_character = vec!["]".to_string()];
-        let lexed_token = lex(&section_close_character);
-
-        assert_eq!(lexed_token.get(0), Some(&Token::SectionClose));
-    }
-
-    #[test]
     fn test_mapsto_equals_token() {
         let maps_to_character = vec!["=".to_string()];
         let lexed_token = lex(&maps_to_character);
@@ -150,11 +121,11 @@ mod tests {
     }
 
     #[test]
-    fn test_name_token_for_section() {
+    fn test_section_token() {
         let section_string = vec!["[test_section]".to_string()];
         let lexed_token = lex(&section_string);
 
-        assert_eq!(lexed_token.get(1), Some(&Token::Name("test_section".to_string())));
+        assert_eq!(lexed_token.get(0), Some(&Token::Section("test_section".to_string())));
     }
 
     #[test]

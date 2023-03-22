@@ -86,24 +86,18 @@ pub fn parse(ini: &mut INI, tokens: Vec<Token>) {
                     ini.comments.push(content.to_string());
                 }
             },
-            Token::SectionOpen => {
+
+            Token::Section(name) => {
+                // Add the previous section that was being parsed into global sections.
                 if ctx.current_section.is_some() {
                     ini.sections.push(ctx.current_section.unwrap());
-                    ctx.current_section = None;
-                } else {
-                    // In case of the first section, `ctx.current_section` would be None.
-                    continue;
                 }
+                ctx.current_section = Some(Section::create_section(name.to_owned()));
             },
-            Token::SectionClose => continue,
 
             Token::MapsTo =>  continue,
 
             Token::Name(name) => {
-                // If `ctx.current_section` is None, then there's probably a section name to be 
-                // parsed. This is because we set `ctx.current_section` to `None` in the 
-                // `SectionOpen` token handler. This should also handle the case of the first
-                // section.
                 if ctx.current_section.is_none() {
                     if ctx.current_property.is_some() && !cfg!(feature="globalprops"){
                         panic!("Global properties not allowed. Please enable crate feature `globalprops`.");
@@ -111,7 +105,7 @@ pub fn parse(ini: &mut INI, tokens: Vec<Token>) {
 
                     ctx.current_section = Some(Section::create_section(name.to_owned()));
                     continue;
-                } 
+                }
 
                 // Otherwise, if a section exists contextually, then the name probably belongs to a
                 // property.
