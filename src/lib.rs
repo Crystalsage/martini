@@ -33,7 +33,7 @@ pub struct INI {
 }
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Property {
     key: String,
     value: Option<INIValueType>,

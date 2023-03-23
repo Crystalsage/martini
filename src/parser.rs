@@ -19,7 +19,7 @@ impl INIContext {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Section {
     name: String,
     children: Vec<Section>,
@@ -46,7 +46,7 @@ impl Section {
 
 
 /// Wrapper types 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum INIValueType {
     INIString(String),
     INIInteger(i64),
@@ -92,14 +92,13 @@ pub fn parse(ini: &mut INI, tokens: Vec<Token>) {
             Token::Section(name) => {
                 // Add the previous section that was being parsed into global sections.
                 if ctx.current_section.is_some() {
-                    if name.contains(".") && cfg!(feature="subsections"){
-                        ctx.current_section.as_mut().unwrap().children.push(Section::create_section(name.to_owned()));
+                    if ctx.current_section.as_ref().unwrap().name.contains(".") && cfg!(feature="subsections"){
+                        let what = ini.sections.last_mut().unwrap();
+                        what.children.push(ctx.current_section.unwrap());
+                    } else {
                         ini.sections.push(ctx.current_section.unwrap());
-                        ctx.current_section = Some(Section::create_section(name.to_owned()));
-                        continue;
                     }
 
-                    ini.sections.push(ctx.current_section.unwrap());
                 }
                 ctx.current_section = Some(Section::create_section(name.to_owned()));
             },
