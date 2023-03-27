@@ -1,4 +1,4 @@
-use crate::{INI, Property, Token};
+use crate::{INI, Property, Section, Token};
 
 /// Manages the context of the INI Parser. This is used while parsing the names to 
 struct INIContext {
@@ -16,29 +16,6 @@ impl INIContext {
                 },
             current_property: None,
         }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct Section {
-    name: String,
-    children: Vec<Section>,
-    properties: Vec<Property>,
-}
-
-impl Section {
-    /// Return a new named section.
-    fn create_section(name: String) -> Self {
-        Section { 
-            name,
-            children: Vec::new(),
-            properties: Vec::new(),
-        }
-    }
-
-    /// Insert a property into a section.
-    fn insert_property(self: &mut Self, property: Property) {
-        self.properties.push(property);
     }
 }
 

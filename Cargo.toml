@@ -62,3 +62,18 @@ hash_for_comments = []
 # ===== SUBSECTIONS =====
 subsections = []
 # ===== SUBSECTIONS =====
+
+
+# ===== DUPLICATE PROPERTIES =====
+# Allows for duplicate properties within the same section, with different strategies for resolving
+# the conflicts.
+
+# Only parses the first entry and then ignores all the duplicates which come after it.
+duplicate_handle_ignore = []
+
+# Overwrites the property value with the latest one that is parsed.
+duplicate_handle_overwrite = []
+
+# Allows for duplicate properties. The properties are stacked into an array.
+duplicate_handle_allow = []
+# ===== DUPLICATE PROPERTIES =====

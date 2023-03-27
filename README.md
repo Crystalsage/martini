@@ -29,9 +29,9 @@ Some of these are implicitly guaranteed.
 - [x] Different delimiters for properties: 
     + [x] `<space>` 
     + [x] `:` 
-- [ ] Hierarchy: Nesting the section
-    + [ ] `[section.subsection]` 
-    + [ ] `[.subsection]` where nesting under `section` is inferred
+- [x] Hierarchy: Nesting the section
+    + [x] `[section.subsection]` 
+    + [x] `[.subsection]` where nesting under `section` is inferred
 - [x] Variants of comments:
     + [x] `#`,
 - [ ] Duplicate properties with multiple parsing strategies:

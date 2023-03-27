@@ -9,6 +9,7 @@ fn main() {
         println!("Please enter the filename as the argument.");
         return;
     } else {
-        martini::INI::parse_ini(&args[1]);
+        let ini = martini::INI::parse_ini(&args[1]);
+        println!("Section: {:?}", martini::get_all_sections(ini));
     }
 }

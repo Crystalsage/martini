@@ -7,10 +7,17 @@ mod lexer;
 mod parser;
 
 use crate::lexer::{lex, Token};
-use crate::parser::{INIValueType, Section};
+use crate::parser::INIValueType;
 use parser::parse;
 
 type INIContent = Vec<String>;
+
+#[derive(Debug)]
+enum ParseStrategy {
+    IgnoreDuplicates,
+    OverwriteDuplicates,
+    AllowDuplicates
+}
 
 /// The INI struct is the primary struct that's used as an interface into the 
 /// INI File. 
@@ -30,6 +37,32 @@ pub struct INI {
 
     // All the comments of the INI file.
     comments: Vec<String>,
+
+    // Section parsing strategy.
+    parse_strategy: ParseStrategy,
+}
+
+#[derive(Debug, Clone)]
+pub struct Section {
+    name: String,
+    children: Vec<Section>,
+    properties: Vec<Property>,
+}
+
+impl Section {
+    /// Return a new named section.
+    fn create_section(name: String) -> Self {
+        Section { 
+            name,
+            children: Vec::new(),
+            properties: Vec::new(),
+        }
+    }
+
+    /// Insert a property into a section.
+    fn insert_property(self: &mut Self, property: Property) {
+        self.properties.push(property);
+    }
 }
 
 
@@ -56,6 +89,11 @@ fn get_all_comments(ini: INI) -> Vec<String> {
     return ini.comments;
 }
 
+pub fn get_all_sections(ini: INI) -> Vec<Section> {
+    let ini_sections: Vec<Section> = ini.sections;
+    return ini_sections;
+}
+
 pub fn read_file(filename: &str) -> std::io::Result<Lines<BufReader<File>>> {
     let file = File::open(filename)?;
     let reader = BufReader::new(file);
@@ -72,8 +110,14 @@ impl INI {
 
         let tokens: Vec<Token> = lex(&lines);
 
-        let mut ini = INI { content: lines, sections: Vec::new(), comments: Vec::new() };
+        let mut ini = INI { 
+            content: lines, 
+            sections: Vec::new(), 
+            comments: Vec::new(),
+            parse_strategy: ParseStrategy::AllowDuplicates,
+        };
         parse(&mut ini, tokens);
+
         dbg!(&ini);
 
         return ini;
