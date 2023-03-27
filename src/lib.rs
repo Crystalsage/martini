@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::io::{BufRead, BufReader};
 use std::io::Lines;
 
@@ -49,6 +50,12 @@ pub struct Section {
     properties: Vec<Property>,
 }
 
+impl Display for Section {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.name)
+    }
+}
+
 impl Section {
     /// Return a new named section.
     fn create_section(name: String) -> Self {
@@ -94,6 +101,20 @@ pub fn get_all_sections(ini: INI) -> Vec<Section> {
     return ini_sections;
 }
 
+pub fn get_section(ini: INI, section_name: &str) -> Option<Section> {
+    let mut result: Option<Section> = None;
+
+    let ini_sections: Vec<Section> = ini.sections;
+    for section in ini_sections {
+        if section.name == section_name {
+            result = Some(section);
+            break;
+        }
+    }
+
+    return result;
+}
+
 pub fn read_file(filename: &str) -> std::io::Result<Lines<BufReader<File>>> {
     let file = File::open(filename)?;
     let reader = BufReader::new(file);
@@ -116,9 +137,8 @@ impl INI {
             comments: Vec::new(),
             parse_strategy: ParseStrategy::AllowDuplicates,
         };
-        parse(&mut ini, tokens);
 
-        dbg!(&ini);
+        parse(&mut ini, tokens);
 
         return ini;
     }

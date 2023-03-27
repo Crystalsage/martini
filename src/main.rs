@@ -10,6 +10,6 @@ fn main() {
         return;
     } else {
         let ini = martini::INI::parse_ini(&args[1]);
-        println!("Section: {:?}", martini::get_all_sections(ini));
+        dbg!(ini);
     }
 }

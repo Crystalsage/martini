@@ -1,4 +1,6 @@
-use crate::{INI, Property, Section, Token};
+use std::collections::HashSet;
+
+use crate::{INI, Property, Section, Token, ParseStrategy};
 
 /// Manages the context of the INI Parser. This is used while parsing the names to 
 struct INIContext {
@@ -49,6 +51,7 @@ impl INIValueType {
 pub fn parse(ini: &mut INI, tokens: Vec<Token>) {
     let mut token_iterator = tokens.iter();
     let mut ctx: INIContext = INIContext::new();
+    let mut seen_properties: HashSet<String> = HashSet::new();
 
     loop {
         let token: Option<&Token> = token_iterator.next();
@@ -104,11 +107,33 @@ pub fn parse(ini: &mut INI, tokens: Vec<Token>) {
                         panic!("Blank properties not allowed. Please enable crate feature `blankprops`");
                     }
                     
-                    let ini_value: INIValueType = INIValueType::to_ini_type(name);
-                    ctx.current_property
-                        .as_mut()
-                        .unwrap()
-                        .set_value(ini_value);
+                    // Before setting the value, check if the property has been seen before in the 
+                    // current section. If so, then we consider the parsing strategy.
+                    if seen_properties.contains(name) {
+                        match ini.parse_strategy {
+                            ParseStrategy::AllowDuplicates => {
+                                let ini_value: INIValueType = INIValueType::to_ini_type(name);
+                                ctx.current_property
+                                    .as_mut()
+                                    .unwrap()
+                                    .set_value(ini_value);
+                            },
+                            ParseStrategy::IgnoreDuplicates => {
+                                ctx.current_property = None;
+                                continue;
+                            },
+                            ParseStrategy::OverwriteDuplicates => {
+                                todo!();
+                            },
+                        }
+                    } else {
+                        let ini_value: INIValueType = INIValueType::to_ini_type(name);
+                        ctx.current_property
+                            .as_mut()
+                            .unwrap()
+                            .set_value(ini_value);
+                    }
+
 
                     // Once the property is parsed completely, we can add it into `current_section`
                     // and be done with it.
