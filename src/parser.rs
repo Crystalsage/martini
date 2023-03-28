@@ -48,6 +48,17 @@ impl INIValueType {
     }
 }
 
+fn get_property(section: &Section, name: String) -> Option<&Property> {
+    let props = &section.properties;
+    for property in props {
+        if property.key == name {
+            return Some(property);
+        }
+    }
+
+    return None;
+}
+
 pub fn parse(ini: &mut INI, tokens: Vec<Token>) {
     let mut token_iterator = tokens.iter();
     let mut ctx: INIContext = INIContext::new();
@@ -98,42 +109,55 @@ pub fn parse(ini: &mut INI, tokens: Vec<Token>) {
                 // Otherwise, if a section exists contextually, then the name probably belongs to a
                 // property.
                 if ctx.current_property.is_none() {
-                    ctx.current_property = Some(Property::new_with_key(name.to_owned()));
+                    if seen_properties.contains(name) {
+                        match ini.parse_strategy {
+                            ParseStrategy::AllowDuplicates => {
+                                ctx.current_property = Some(Property::new_with_key(name.to_owned()));
+                                seen_properties.insert(name.to_string());
+                            },
+                            ParseStrategy::IgnoreDuplicates => {
+                                continue;
+                            },
+                            ParseStrategy::OverwriteDuplicates => {
+                                // Remove old property 
+                                let mut props = ctx.current_section.clone().unwrap().properties;
+                                let mut old_idx = 0;
+                                for (idx, property) in props.iter().enumerate() {
+                                    if &property.key == name {
+                                        old_idx = idx;
+                                    }
+                                }
+                                props.remove(old_idx);
+
+                                // Reassign the removed section
+                                ctx.current_section.as_mut().unwrap().properties = props;
+
+                                // Continue with the new property
+                                ctx.current_property = Some(Property::new_with_key(name.to_owned()));
+                                seen_properties.insert(name.to_string());
+                            },
+                        }
+                    } else {
+                        ctx.current_property = Some(Property::new_with_key(name.to_owned()));
+                        seen_properties.insert(name.to_string());
+                    }
+
                 } else {
                     // If there is a property in the current context, then we are past a `MapsTo`
                     // token and the current name is probably a property value.
-
+                    //
+                    // dbg!(&ctx.current_property.as_ref().unwrap().key);
                     if name.is_empty() && !cfg!(feature="blankprops") {
                         panic!("Blank properties not allowed. Please enable crate feature `blankprops`");
                     }
                     
                     // Before setting the value, check if the property has been seen before in the 
                     // current section. If so, then we consider the parsing strategy.
-                    if seen_properties.contains(name) {
-                        match ini.parse_strategy {
-                            ParseStrategy::AllowDuplicates => {
-                                let ini_value: INIValueType = INIValueType::to_ini_type(name);
-                                ctx.current_property
-                                    .as_mut()
-                                    .unwrap()
-                                    .set_value(ini_value);
-                            },
-                            ParseStrategy::IgnoreDuplicates => {
-                                ctx.current_property = None;
-                                continue;
-                            },
-                            ParseStrategy::OverwriteDuplicates => {
-                                todo!();
-                            },
-                        }
-                    } else {
-                        let ini_value: INIValueType = INIValueType::to_ini_type(name);
-                        ctx.current_property
-                            .as_mut()
-                            .unwrap()
-                            .set_value(ini_value);
-                    }
-
+                    let ini_value: INIValueType = INIValueType::to_ini_type(name);
+                    ctx.current_property
+                        .as_mut()
+                        .unwrap()
+                        .set_value(ini_value);
 
                     // Once the property is parsed completely, we can add it into `current_section`
                     // and be done with it.

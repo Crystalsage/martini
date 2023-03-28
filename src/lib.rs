@@ -135,7 +135,7 @@ impl INI {
             content: lines, 
             sections: Vec::new(), 
             comments: Vec::new(),
-            parse_strategy: ParseStrategy::AllowDuplicates,
+            parse_strategy: ParseStrategy::OverwriteDuplicates,
         };
 
         parse(&mut ini, tokens);

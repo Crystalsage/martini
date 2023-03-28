@@ -34,7 +34,7 @@ Some of these are implicitly guaranteed.
     + [x] `[.subsection]` where nesting under `section` is inferred
 - [x] Variants of comments:
     + [x] `#`,
-- [ ] Duplicate properties with multiple parsing strategies:
-    + [ ] Ignore: Ignore the latest conflicting duplicate.
-    + [ ] Overwrite: Overwrite the original property with the new one.
-    + [ ] Allow multiple: Allow multiple values to co-exist.
+- [x] Duplicate properties with multiple parsing strategies:
+    + [x] Ignore: Ignore the latest conflicting duplicate.
+    + [x] Overwrite: Overwrite the original property with the new one.
+    + [x] Allow multiple: Allow multiple values to co-exist.
